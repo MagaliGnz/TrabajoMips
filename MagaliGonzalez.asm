@@ -38,19 +38,19 @@ main: 	la 	$t0, schedv	 #carga la direccion de schedv en en $t0
 	
 	
 	#cargar funciones en schedv
-	   li    $t1, 0
-   	  sw    $t1, cclist      		 # Inicializa cclist como vacía
-  	  sw    $t1, wclist      		 # Inicializa wclist como vacía
+	   li    	$t1, 0
+   	  sw    	$t1, cclist      		 # Inicializa cclist como vacía
+  	  sw    	$t1, wclist      		 # Inicializa wclist como vacía
 
 	
  	 la 	$t1, newcaterogy  	 #carga la direccion de la funcion nwCat 
 	 sw 	$t1, 0($t0)  		 # guardar &(schedv[0])
 	
-	 la  $t1, nextCategory   	 # dirección de la función nextCategory
-    	 sw  $t1, 4($t0)          		# schedv[2] = nextCategory
+	 la  	$t1, nextCategory   	 # dirección de la función nextCategory
+    	 sw  	$t1, 4($t0)          		# schedv[2] = nextCategory
 
-	 la  $t1, prevCategory    	# Dirección de la función prevCategory
-	 sw  $t1, 8($t0)         		# schedv[3] = prevCategory
+	 la  	$t1, prevCategory    	# Dirección de la función prevCategory
+	 sw  	$t1, 8($t0)         		# schedv[3] = prevCategory
 	 
 	 la	$t1, listCategories	 # Dirección de la función listCategories
 	 sw	$t1, 12($t0)		 # schedv[4] = listCategories
@@ -74,8 +74,8 @@ main: 	la 	$t0, schedv	 #carga la direccion de schedv en en $t0
   	  j	end 
 
 menuLoop:
-  	 la    $a0, menu         			 # mostrar el menú
-	 li    $v0, 4
+  	 la    	$a0, menu         			 # mostrar el menú
+	 li    	$v0, 4
    	 syscall
 
   	 li    $v0, 5             			# leer la opción seleccionada
@@ -94,53 +94,53 @@ menuLoop:
    	
    	
    	# llamar a una funcion del schedv, $t0 = id de la funcion
-    	 la    	 $t1, schedv        # Dirección base del vector
-      	 sll   	 $t2, $a0, 2        # t2 = t0 * 4 (tamaño de una palabra)
-      	 add   	 $t3, $t1, $t2      # Dirección de la entrada correspondiente
-    	 lw   	 $t4, 0($t3)         # Cargar dirección de la función en t4
+    	 la    	 $t1, schedv        		# Dirección base del vector
+      	 sll   	 $t2, $a0, 2        		# t2 = t0 * 4 (tamaño de una palabra)
+      	 add   	 $t3, $t1, $t2      		# Dirección de la entrada correspondiente
+    	 lw   	 $t4, 0($t3)         		# Cargar dirección de la función en t4
 
        
    	 jalr    	$t4            
-   	 j     menuLoop          # Repetir el menú
+   	 j     menuLoop          	# Repetir el menú
 
 #----------
 
 smalloc:
-	lw 	$t0, slist #lista NULL en t0
-	beqz 	$t0, sbrk  #si slist = 0, salta a la funcion sbrk
+	lw 	$t0, slist 	#lista NULL en t0
+	beqz 	$t0, sbrk  	#si slist = 0, salta a la funcion sbrk
 	move 	$v0, $t0	#copia slist en v0
-	lw 	$t0, 12($t0) #t0 = slist [0]->[3] (12/4)
-	sw 	$t0, slist  # mueve el inicio de slist para que inicialice en lo que antes era pos3
-	jr 	$ra #resturn
+	lw 	$t0, 12($t0) 	#t0 = slist [0]->[3] (12/4)
+	sw 	$t0, slist  	# mueve el inicio de slist para que inicialice en lo que antes era pos3
+	jr 	$ra 		#resturn
 sbrk: 
-	li 	$a0, 16 # pide un espacio de 4 palabras
-	li 	$v0, 9 # 9 = sbrk
-	syscall # return node address in v0
+	li 	$a0, 16 	# pide un espacio de 4 palabras
+	li 	$v0, 9 		# 9 = sbrk
+	syscall 		# return node address in v0
 	jr 	$ra
 sfree: #recibe la direccion de una memoria a liberar
-	lw 	$t0, slist #guarda slist en t0
-	sw 	$t0, 12($a0) #ubica el inicio de slist al final de a0 
-	sw 	$a0, slist #slist arranque desde el inicio de a0
+	lw 	$t0, slist 	#guarda slist en t0
+	sw 	$t0, 12($a0) 	#ubica el inicio de slist al final de a0 
+	sw 	$a0, slist 	#slist arranque desde el inicio de a0
 	jr 	$ra
 
 newcaterogy:
-	addiu 	$sp, $sp, -4 #mueve una posicion adelante
-	sw 	$ra, 4($sp) #guarda el return adress de newcategory en la pila para poder retornar mas tarde ya que ra va a cambiar de valor 
+	addiu 	$sp, $sp, -4 	#mueve una posicion adelante
+	sw 	$ra, 4($sp) 	#guarda el return adress de newcategory en la pila para poder retornar mas tarde ya que ra va a cambiar de valor 
 	la 	$a0, catName # argumento para getblock
-	jal 	getblock #scanf
+	jal 	getblock	 #scanf
 	
-	move 	$a2, $v0 # mueve el retorno de getblock a a2
-	la 	$a0, cclist # carga la lista de las categorias en a0
-	li	 $a1, 0 # $a1 = NULL
+	move 	$a2, $v0 	# mueve el retorno de getblock a a2
+	la 	$a0, cclist 	# carga la lista de las categorias en a0
+	li	 $a1, 0 	# $a1 = NULL
 	
 	jal 	addnode #agrega un nodo
 	lw 	$t0, wclist #carga en t0 la categoria actual
 	bnez 	$t0, newcategory_end #si t0 = 0 ejecuta newcategory_end
 	sw 	$v0, wclist # guarda la categoria seleccionada en v0 si t0 != 0 
 newcategory_end:
-	li 	$v0, 0 # return success
-	lw 	$ra, 4($sp) #restaura la dir de retorno original de la funcion 
-	addiu 	$sp, $sp, 4 #devuelvo memoria
+	li 	$v0, 0 		# return success
+	lw 	$ra, 4($sp) 	#restaura la dir de retorno original de la funcion 
+	addiu 	$sp, $sp, 4 	#devuelvo memoria
 	jr 	$ra
 
 # a0: list address
@@ -314,7 +314,7 @@ listCategories:
    		sw   	$ra, 4($sp)			#guardar el return adress
    		
    		lw	$t0, cclist			#cargo la lista de categorias
-   		li	$a0, 301
+   		li	$a1, 301
    		beqz   $t0, printError
    		
    		move	$t1, 	$t0			#apunto al primer nodo
@@ -359,7 +359,7 @@ deleteCategory:
    		sw	$s0, 4($sp)			#reservo s0 para la categoria actual
    		
    		lw	$s0, wclist			#cargo la categoria actual
-   		li	$a0, 401
+   		li	$a1, 401
    		beqz   $s0, printError
 
 		#cargar la lista de objetos de la categoria
@@ -426,13 +426,13 @@ deleteCategoryEnd:
 
 newObject:
 		addi    $sp, $sp, -8     		 # reservo espacio en la pila para almacenar registros
-   		sw      $ra, 8($sp)        		 # guardo el return address
+   		sw       $ra, 8($sp)        		 # guardo el return address
    		sw	$s0, 4($sp)			#guardo el puntero a la categoria
    	
  newObjectLoop:
     		
 		lw	$s0, wclist			#cargo la cateogira actual
-		li	$a0, 501			#cargo directa para el tipo de error
+		li	$a1, 501			#cargo directa para el tipo de error
 		beqz	$s0, printError	
 		
 		#obtener nombre del objeto
@@ -451,6 +451,7 @@ newObject:
 		jal	addnode	
 	
 		#-----------------------------------------------------------------------------------
+newObjectAgain:
 		# preguntar si desea agregar otro objeto
 		la	$a0, continueMsg		 
 		li	$v0, 4			 
@@ -462,15 +463,14 @@ newObject:
 		
 		
 		beqz	$t5, newObjectExit
-		li	$t6, 	1
-		beq	$t5, $t6, newObjectLoop
+		beq	$t5, 1, newObjectLoop
 		
 		#si el valor no es ni 0 ni 1
 		
 		la	$a0, errorMsg
 		li	$v0, 4
 		syscall
-		j	 newObjectLoop
+		j	 newObjectAgain
 		
 newObjectExit:
 		li 	$v0, 0		 		#return success 
@@ -514,7 +514,7 @@ listObjects:
    		sw   	$ra, 4($sp)			#guardar el return adress
    		
    		lw	$t0, wclist			#cargo la categoria actual
-   		li	$a0, 601			#error 601 si no hay categorias
+   		li	$a1, 601			#error 601 si no hay categorias
    		beqz   $t0, printError
    		
    		lw	$t2, 4($t0)			#cargar la lista de objetos 
@@ -564,7 +564,7 @@ deleteObject:
    		sw   	$ra, 4($sp)			#guardar el return adress
    		
 		lw	$t0, wclist			#cargo la categoria actual
-   		li	$a0, 701			#error 701 si no hay categorias
+   		li	$a1, 701			#error 701 si no hay categorias
    		beqz   $t0, printError
    		
    		
